@@ -1,289 +1,171 @@
-"use client";
-
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
 import Image from "next/image";
-import { useRef } from "react";
-import { accentStyles } from "@/components/ui/accent";
-import { Icon } from "@/components/ui/icon";
-import { Reveal } from "@/components/ui/reveal";
+import type { CSSProperties } from "react";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/reveal";
 import { profile } from "@/data/profile";
-import { services, type Service } from "@/data/services";
+import { serviceSteps } from "@/data/services";
 import { cn } from "@/lib/utils";
 
-const COUNT = services.length;
+/** Radius of the curved joins where a connector meets a pill. */
+const FILLET = "0.75rem";
 
 /**
- * Scroll distance, in vh, spent on each card hand-over. The section stands
- * this much taller than the screen it pins against, which is what gives the
- * deck something to scrub through before the page moves on.
+ * A concave corner piece, so a connector flares into the pill it meets rather
+ * than butting against it at a right angle.
  */
-const SCROLL_PER_CARD = 45;
-const SECTION_VH = 100 + (COUNT - 1) * SCROLL_PER_CARD;
+function Fillet({ corner }: { corner: "tl" | "tr" | "bl" | "br" }) {
+  const top = corner[0] === "t";
+  const left = corner[1] === "l";
 
-/**
- * How far a card still is from the front, counting down to `0`. Negative once
- * it has been passed. Drives the ticks, which read straight through 1..6.
- */
-function useDeckPosition(progress: MotionValue<number>, index: number) {
-  return useTransform(progress, (p) => index - p * (COUNT - 1));
+  // The cut-out circle sits in the corner furthest from the pill and the bar.
+  const at = `${left ? "0%" : "100%"} ${top ? "100%" : "0%"}`;
+  const style: CSSProperties = {
+    width: FILLET,
+    height: FILLET,
+    [top ? "top" : "bottom"]: 0,
+    [left ? "right" : "left"]: "100%",
+    background: `radial-gradient(circle at ${at}, transparent ${FILLET}, var(--color-ink) calc(${FILLET} + 0.5px))`,
+  };
+
+  return <span aria-hidden className="absolute" style={style} />;
 }
 
-/**
- * The card's seat in the fan: `0` is face-on, `COUNT - 1` is the deepest.
- * Cyclic, so a card leaving the front comes back round to the back of the fan
- * rather than being flung aside — the deck reads as the same tidy spread at
- * every scroll position instead of thinning into loose translucent strays.
- */
-function useDeckSlot(progress: MotionValue<number>, index: number) {
-  return useTransform(progress, (p) => {
-    const front = p * (COUNT - 1);
-    return (((index - front) % COUNT) + COUNT) % COUNT;
-  });
-}
-
-function DeckCard({
-  service,
-  index,
-  progress,
-}: {
-  service: Service;
-  index: number;
-  progress: MotionValue<number>;
-}) {
-  const accent = accentStyles[service.accent];
-  const slot = useDeckSlot(progress, index);
-
-  // The last slot of the cycle is the card crossing from the front round to
-  // the back. It is parked at the deepest seat and held invisible for that
-  // stretch — and because it is directly behind the card taking its place,
-  // the swap is never seen.
-  const seat = useTransform(slot, (u) => Math.min(u, COUNT - 1));
-
-  // The fan pivots just under the card, so the spread stays upright instead
-  // of swinging the back of the deck down and off the layout. Rotation is
-  // kept shallow and the horizontal offset does more of the fanning.
-  const rotate = useTransform(seat, (u) => 4 - 7.5 * u);
-  const x = useTransform(seat, (u) => -24 * u);
-  const y = useTransform(seat, (u) => -5 * u);
-  const scale = useTransform(seat, (u) => 1 - 0.03 * u);
-  // Deep seats fade out, so a card re-entering at the back arrives from
-  // nothing rather than popping in.
-  const opacity = useTransform(slot, (u) =>
-    u > COUNT - 1
-      ? 0
-      : Math.max(0, Math.min(1, 1 - Math.max(0, u - 3.2) * 0.55)),
-  );
-  // Distinct per card, front highest — no two cards can tie and render
-  // through one another.
-  const zIndex = useTransform(slot, (u) => 1000 - Math.round(u * 10));
-
+/** The bar carrying the path down to the next row. */
+function Connector({ side }: { side: "left" | "right" }) {
   return (
-    <motion.li
-      style={{ rotate, x, y, scale, opacity, zIndex }}
-      className="absolute h-[21rem] w-[16.5rem] origin-[50%_112%] sm:h-[23rem] sm:w-[18.5rem]"
+    <span
+      aria-hidden
+      className={cn(
+        "absolute top-full z-0 h-4 w-9 bg-ink sm:h-5 sm:w-11",
+        // Far enough in from the pill's rounded end that it meets a flat edge.
+        side === "right" ? "right-[22%] sm:right-[18%]" : "left-[22%] sm:left-[18%]",
+      )}
     >
-      <div className="card-3d flex h-full flex-col p-5 sm:p-6">
-        <div className="flex items-start justify-between">
-          <span
-            className={cn(
-              "inline-flex size-10 items-center justify-center rounded-xl",
-              accent.mist,
-              accent.text,
-            )}
-          >
-            <Icon name={service.icon} className="size-5" />
-          </span>
-          <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-ink-muted">
-            {String(index + 1).padStart(2, "0")} /{" "}
-            {String(COUNT).padStart(2, "0")}
-          </span>
-        </div>
-
-        <h3 className="mt-5 font-display text-xl leading-snug text-ink">
-          {service.title}
-        </h3>
-        <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-          {service.detail}
-        </p>
-
-        <p className="mt-auto border-t border-hairline pt-3 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-ink-muted">
-          {service.tech.join(" · ")}
-        </p>
-      </div>
-    </motion.li>
+      <Fillet corner="tl" />
+      <Fillet corner="tr" />
+      <Fillet corner="bl" />
+      <Fillet corner="br" />
+    </span>
   );
 }
 
-/** One tick per card, filling as its card reaches the front. */
-function DeckTick({
+function StepPill({
+  label,
   index,
-  progress,
+  side,
 }: {
+  label: string;
   index: number;
-  progress: MotionValue<number>;
+  side: "left" | "right";
 }) {
-  const position = useDeckPosition(progress, index);
-  const opacity = useTransform(position, (d) =>
-    Math.max(0.2, 1 - Math.abs(d) * 0.8),
-  );
-  const scaleX = useTransform(position, (d) =>
-    Math.max(0.4, 1 - Math.abs(d) * 0.5),
-  );
+  // Filled and outlined alternate along the path.
+  const filled = index % 2 === 0;
 
   return (
-    <motion.span
-      style={{ opacity, scaleX }}
-      className="h-0.5 w-7 rounded-full bg-ink"
-    />
-  );
-}
-
-function Deck({ progress }: { progress: MotionValue<number> }) {
-  // The prompt retires once there is nothing left to deal.
-  const hint = useTransform(progress, [0.82, 1], [1, 0]);
-
-  return (
-    <>
-      <ul className="relative flex h-[23rem] items-center justify-center sm:h-[25rem]">
-        {services.map((service, index) => (
-          <DeckCard
-            key={service.title}
-            service={service}
-            index={index}
-            progress={progress}
-          />
-        ))}
-      </ul>
-
-      <div className="mt-6 flex justify-center gap-1.5">
-        {services.map((service, index) => (
-          <DeckTick key={service.title} index={index} progress={progress} />
-        ))}
-      </div>
-
-      <motion.p
-        style={{ opacity: hint }}
-        className="mt-4 text-center font-mono text-[0.65rem] uppercase tracking-[0.2em] text-ink-muted"
+    <div
+      className={cn(
+        // Each pill reaches past the column's centre line so neighbours join.
+        side === "left" ? "-mr-3" : "-ml-3",
+        filled ? "relative z-20" : "relative z-10",
+      )}
+    >
+      <div
+        className={cn(
+          "flex h-12 items-center justify-center gap-2 rounded-full border-2 border-ink px-4 text-center text-xs font-medium leading-tight transition-colors duration-300 sm:h-14 sm:text-sm",
+          filled
+            ? "bg-ink text-ivory hover:bg-lilac-deep hover:border-lilac-deep"
+            : "bg-surface text-ink hover:bg-lilac-mist",
+        )}
       >
-        Scroll to deal
-      </motion.p>
-    </>
+        <span
+          className={cn(
+            "hidden font-mono text-[0.6rem] tracking-[0.1em] sm:inline",
+            filled ? "text-lilac" : "text-ink-muted",
+          )}
+        >
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        {label}
+      </div>
+    </div>
   );
 }
 
-/** Every card at once — the layout used when motion is unwelcome. */
-function StaticGrid() {
+/** Steps two to a row, snaking left-right then right-left down the rows. */
+function StepPath() {
+  const rows = Array.from(
+    { length: Math.ceil(serviceSteps.length / 2) },
+    (_, row) => serviceSteps.slice(row * 2, row * 2 + 2),
+  );
+
   return (
-    <ul className="grid gap-4 sm:grid-cols-2">
-      {services.map((service) => {
-        const accent = accentStyles[service.accent];
+    <RevealGroup className="flex flex-col gap-4 sm:gap-5">
+      {rows.map((pair, row) => {
+        const leftToRight = row % 2 === 0;
+        const first = row * 2;
+        const isLast = row === rows.length - 1;
+
+        // Grid cells run left to right, so a right-to-left row is reversed.
+        const steps = pair.map((label, i) => ({ label, index: first + i }));
+        const cells = (leftToRight ? steps : steps.reverse()).map(
+          (step, column) => ({
+            ...step,
+            side: column === 0 ? ("left" as const) : ("right" as const),
+          }),
+        );
 
         return (
-          <li key={service.title}>
-            <div className="card-3d h-full p-5">
-              <span
-                className={cn(
-                  "inline-flex size-10 items-center justify-center rounded-xl",
-                  accent.mist,
-                  accent.text,
-                )}
-              >
-                <Icon name={service.icon} className="size-5" />
-              </span>
-              <h3 className="mt-4 font-display text-lg leading-snug text-ink">
-                {service.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                {service.detail}
-              </p>
-              <p className="mt-4 border-t border-hairline pt-3 font-mono text-[0.7rem] uppercase tracking-[0.12em] text-ink-muted">
-                {service.tech.join(" · ")}
-              </p>
-            </div>
-          </li>
+          <RevealItem key={row} className="relative grid grid-cols-2">
+            {cells.map((cell) => (
+              <StepPill key={cell.label} {...cell} />
+            ))}
+            {isLast ? null : (
+              <Connector side={leftToRight ? "right" : "left"} />
+            )}
+          </RevealItem>
         );
       })}
-    </ul>
+    </RevealGroup>
   );
 }
 
 export function Services() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const reduceMotion = useReducedMotion();
-
-  // 0 when the section locks to the top of the screen, 1 once its last card
-  // is face-on and the page is free to carry on past it.
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end end"],
-  });
-
-  const intro = (
-    <>
-      <span className="inline-flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.28em] text-ink-muted">
-        <span className="h-px w-6 bg-lilac" />
-        Services
-      </span>
-      <h2 className="mt-4 font-display text-3xl leading-tight text-ink sm:text-4xl">
-        What I can build for you
-      </h2>
-      <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft sm:text-base">
-        From responsive websites to complete web applications, I build practical
-        digital solutions tailored to your goals, users, and business needs.
-      </p>
-    </>
-  );
-
-  // No pinning when motion is unwelcome — the section becomes an ordinary
-  // block with every card laid out at once.
-  if (reduceMotion) {
-    return (
-      <section id="services" className="scene relative px-4 py-20 sm:px-6">
-        <div className="mx-auto max-w-6xl">
-          {intro}
-          <div className="mt-10">
-            <StaticGrid />
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section
-      id="services"
-      ref={sectionRef}
-      className="scene relative"
-      style={{ height: `${SECTION_VH}vh` }}
-    >
-      <div className="sticky top-0 flex h-svh items-center overflow-hidden px-4 sm:px-6">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12">
-          {/* ---------- Left: the seated portrait ----------
-              Hidden below `lg`: a full-length figure and the deck cannot both
-              fit one screen on a phone, and the deck is the point here. */}
-          <div className="hidden lg:block">
-            <Image
-              src="/sitting-pose-cutout.png"
-              alt={`${profile.name} seated, arms folded`}
-              width={1123}
-              height={1401}
-              sizes="30rem"
-              className="mx-auto max-h-[72vh] w-auto object-contain"
-            />
-          </div>
+    <section id="services" className="relative flex min-h-[100svh] items-center py-24">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr]">
+        {/* The full-length figure needs room; below `lg` the steps carry it. */}
+        <div className="hidden lg:block">
+          <Image
+            src="/sitting-pose-cutout.png"
+            alt={`${profile.name} seated, arms folded`}
+            width={1123}
+            height={1401}
+            sizes="30rem"
+            className="mx-auto max-h-[72vh] w-auto object-contain"
+          />
+        </div>
 
-          {/* ---------- Right: the pitch and the deck ---------- */}
-          <div>
-            <Reveal>{intro}</Reveal>
-            <div className="mt-8 sm:translate-x-8 lg:translate-x-16">
-              <Deck progress={scrollYProgress} />
-            </div>
+        <div>
+          <Reveal>
+            <span className="inline-flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.28em] text-ink-muted">
+              <span className="h-px w-6 bg-lilac" />
+              Services
+            </span>
+            <h2 className="mt-4 font-display text-3xl leading-tight text-ink sm:text-4xl">
+              What I can build for you
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft sm:text-base">
+              From the first design to launch day and beyond: one person taking
+              your website through every step, so nothing gets lost between
+              hand-offs.
+            </p>
+          </Reveal>
+
+          <div className="mt-10">
+            <p className="mb-4 flex items-center justify-end gap-2 text-sm text-ink-soft">
+              <span aria-hidden className="size-2.5 rounded-full bg-blush-deep" />
+              Work with me
+            </p>
+            <StepPath />
           </div>
         </div>
       </div>

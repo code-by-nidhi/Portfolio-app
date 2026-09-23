@@ -10,7 +10,6 @@ export const navItems: NavItem[] = [
   { label: "Work", href: "#work" },
   { label: "Contributions", href: "#contributions" },
   { label: "Skills", href: "#skills" },
-  { label: "Journey", href: "#journey" },
 ];
 
 export const marqueeItems: string[] = [

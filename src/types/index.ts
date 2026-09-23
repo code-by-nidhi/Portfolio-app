@@ -84,13 +84,3 @@ export interface Contribution {
   url: string;
   year: string;
 }
-
-export interface TimelineEntry {
-  id: string;
-  period: string;
-  title: string;
-  organisation: string;
-  description: string;
-  icon: IconName;
-  accent: Track["accent"];
-}
