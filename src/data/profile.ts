@@ -12,7 +12,7 @@ export const profile = {
   email: "codebynidhi1007@gmail.com",
   github: "https://github.com/code-by-nidhi",
   linkedin: "https://linkedin.com/in/nidhi-mamman",
-  resumeUrl: "/resume.pdf", // TODO: drop the real file into /public
+  resumeUrl: "/resume.pdf",
   siteUrl: "https://nidhi-portfolio.vercel.app", // TODO: real domain
   headline: "I build the systems that hold data — and read the story it tells.",
   subheadline:

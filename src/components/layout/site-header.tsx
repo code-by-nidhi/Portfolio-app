@@ -31,7 +31,7 @@ export function SiteHeader() {
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
       <div
         className={cn(
-          "mx-auto flex max-w-6xl items-center justify-between rounded-2xl border px-4 py-3 transition-all duration-500 sm:px-6",
+          "mx-auto flex max-w-6xl items-center justify-between rounded-2xl border px-4 py-3 transition-[background-color,border-color,box-shadow] duration-500 sm:px-6",
           lifted
             ? "border-hairline bg-surface/85 shadow-[0_10px_30px_-12px_rgba(110,95,176,0.35)] backdrop-blur-xl"
             : "border-transparent bg-transparent",
@@ -50,6 +50,8 @@ export function SiteHeader() {
             <a
               key={item.href}
               href={item.href}
+              target={item.external ? "_blank" : undefined}
+              rel={item.external ? "noreferrer noopener" : undefined}
               className="rounded-lg px-3 py-2 text-sm text-ink-soft transition-colors hover:bg-lilac-mist hover:text-lilac-deep"
             >
               {item.label}
@@ -93,6 +95,8 @@ export function SiteHeader() {
               <a
                 key={item.href}
                 href={item.href}
+                target={item.external ? "_blank" : undefined}
+                rel={item.external ? "noreferrer noopener" : undefined}
                 onClick={() => setMenuOpen(false)}
                 className="block rounded-xl px-4 py-3 text-sm text-ink-soft transition-colors hover:bg-lilac-mist hover:text-lilac-deep"
               >

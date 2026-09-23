@@ -1,65 +1,42 @@
-import { accentStyles } from "@/components/ui/accent";
-import { Icon } from "@/components/ui/icon";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/reveal";
-import { SectionHeading } from "@/components/ui/section-heading";
-import { skillGroups } from "@/data/skills";
-import { cn } from "@/lib/utils";
+import { skills } from "@/data/skills";
 
 export function Skills() {
   return (
-    <section id="skills" className="scene relative py-24 sm:py-32">
+    <section id="skills" className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <Reveal>
-          <SectionHeading
-            eyebrow="Toolkit"
-            title="What I reach for"
-            description="Grouped by the job rather than the logo — the tools change, the thinking behind them mostly doesn't."
-          />
+        <Reveal className="text-center">
+          <span className="inline-block rounded-full border border-hairline bg-lilac-mist px-4 py-1.5 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-lilac-deep">
+            Skills
+          </span>
+          <h2 className="mx-auto mt-5 max-w-2xl font-display text-3xl leading-tight text-ink sm:text-4xl">
+            The skills, tools and technologies I am really good at
+          </h2>
         </Reveal>
 
-        <RevealGroup className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {skillGroups.map((group) => {
-            const accent = accentStyles[group.accent];
-
-            return (
-              <RevealItem key={group.category}>
-                <div className="card-3d h-full p-6 transition-transform duration-500 hover:-translate-y-1.5">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={cn(
-                        "inline-flex size-10 items-center justify-center rounded-xl",
-                        accent.mist,
-                        accent.text,
-                      )}
-                    >
-                      <Icon name={group.icon} className="size-5" />
-                    </span>
-                    <div>
-                      <h3 className="font-display text-lg text-ink">
-                        {group.category}
-                      </h3>
-                      <p className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-ink-muted">
-                        {group.discipline === "engineering"
-                          ? "Development"
-                          : "Analysis"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <ul className="mt-5 flex flex-wrap gap-1.5">
-                    {group.skills.map((skill) => (
-                      <li
-                        key={skill}
-                        className="rounded-lg border border-hairline bg-ivory px-2.5 py-1 text-xs text-ink-soft shadow-[0_2px_0_rgba(230,224,238,0.9)]"
-                      >
-                        {skill}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </RevealItem>
-            );
-          })}
+        {/* Flex rather than grid so a short last row sits centred. */}
+        <RevealGroup className="mt-14 flex flex-wrap justify-center gap-y-10">
+          {skills.map((skill) => (
+            <RevealItem key={skill.name} className="w-1/3 px-2 sm:w-1/5 lg:w-1/8">
+              <div className="group flex flex-col items-center gap-3 text-center">
+                <span className="flex size-16 items-center justify-center rounded-2xl border border-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:border-hairline group-hover:bg-surface group-hover:shadow-[var(--depth-shadow)]">
+                  {/* Local SVGs: next/image adds nothing for vector files. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/skills/${skill.logo}`}
+                    alt=""
+                    width={44}
+                    height={44}
+                    loading="lazy"
+                    className="size-11 object-contain"
+                  />
+                </span>
+                <span className="text-xs font-medium text-ink-soft">
+                  {skill.name}
+                </span>
+              </div>
+            </RevealItem>
+          ))}
         </RevealGroup>
       </div>
     </section>

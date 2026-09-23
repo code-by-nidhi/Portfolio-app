@@ -33,6 +33,8 @@ export type Discipline = "engineering" | "analytics";
 export interface NavItem {
   label: string;
   href: string;
+  /** Opens in a new tab instead of scrolling to a section. */
+  external?: boolean;
 }
 
 export interface Track {
@@ -47,12 +49,10 @@ export interface Track {
   tools: string[];
 }
 
-export interface SkillGroup {
-  category: string;
-  discipline: Discipline;
-  icon: IconName;
-  accent: Track["accent"];
-  skills: string[];
+export interface Skill {
+  name: string;
+  /** Logo file in /public/skills. */
+  logo: string;
 }
 
 export interface Project {
@@ -67,8 +67,22 @@ export interface Project {
   metrics?: { label: string; value: string }[];
   repoUrl?: string;
   liveUrl?: string;
+  /** Further deployments beside the main site, e.g. an admin portal or API docs. */
+  extraLinks?: { label: string; href: string }[];
   accent: Track["accent"];
   status: string;
+  /** Year or range shown beside the project index, e.g. "2025—26". */
+  period?: string;
+}
+
+/** A production site I contributed to, listed in the Contributions section. */
+export interface Contribution {
+  id: string;
+  title: string;
+  description: string;
+  stack: string;
+  url: string;
+  year: string;
 }
 
 export interface TimelineEntry {

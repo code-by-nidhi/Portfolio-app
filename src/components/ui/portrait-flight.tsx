@@ -47,6 +47,9 @@ export function PortraitFlight() {
     if (!slot("hero") || !slot("about") || !about) return;
 
     gsap.registerPlugin(ScrollTrigger);
+    // Don't let ScrollTrigger restore the previous scroll position on refresh;
+    // the page always opens at the top (see the script in the root layout).
+    ScrollTrigger.clearScrollMemory("manual");
 
     // Scroll drives this single number; scrub supplies the smoothing.
     const state = { progress: 0 };
@@ -70,6 +73,8 @@ export function PortraitFlight() {
 
     let revealed = false;
     let lastMaskStop = -1;
+    let lastWidth = -1;
+    let lastTransform = "";
 
     const render = () => {
       const heroSlot = slot("hero");
@@ -80,15 +85,25 @@ export function PortraitFlight() {
       const to = aboutSlot.getBoundingClientRect();
       const p = state.progress;
 
-      const x = from.left + (to.left - from.left) * p;
-      const y = from.top + (to.top - from.top) * p;
-      const width = from.width + (to.width - from.width) * p;
+      // Rounded to half a pixel so sub-pixel jitter in the measured rects
+      // doesn't rewrite styles (and repaint the portrait) on idle frames.
+      const snap = (n: number) => Math.round(n * 2) / 2;
+      const x = snap(from.left + (to.left - from.left) * p);
+      const y = snap(from.top + (to.top - from.top) * p);
+      const width = snap(from.width + (to.width - from.width) * p);
 
       // A slight tilt at the midpoint, flat again once it lands.
-      const tilt = Math.sin(p * Math.PI) * -4;
+      const tilt = (Math.sin(p * Math.PI) * -4).toFixed(2);
 
-      fly.style.width = `${width}px`;
-      fly.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${tilt}deg)`;
+      if (width !== lastWidth) {
+        lastWidth = width;
+        fly.style.width = `${width}px`;
+      }
+      const transform = `translate3d(${x}px, ${y}px, 0) rotate(${tilt}deg)`;
+      if (transform !== lastTransform) {
+        lastTransform = transform;
+        fly.style.transform = transform;
+      }
 
       // In the hero the portrait fades out at the bottom so it melts into the
       // page; inside the badge window it should read as a printed photo. The

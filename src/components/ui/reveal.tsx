@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 import { riseIn, stagger } from "@/lib/motion";
-import { cn } from "@/lib/utils";
 
 const VIEWPORT = { once: true, margin: "-80px" } as const;
 
@@ -19,7 +18,7 @@ export function Reveal({
 }) {
   return (
     <motion.div
-      className={cn("[transform-style:preserve-3d]", className)}
+      className={className}
       variants={riseIn}
       initial="hidden"
       whileInView="visible"
@@ -61,7 +60,7 @@ export function RevealItem({
 }) {
   return (
     <motion.div
-      className={cn("[transform-style:preserve-3d]", className)}
+      className={className}
       variants={riseIn}
     >
       {children}

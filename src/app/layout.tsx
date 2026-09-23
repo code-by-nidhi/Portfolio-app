@@ -111,6 +111,13 @@ const personJsonLd = {
   },
 };
 
+const SCROLL_TO_TOP = `(function(){try{
+if("scrollRestoration" in history)history.scrollRestoration="manual";
+if(location.hash)history.replaceState(null,"",location.pathname+location.search);
+var top=function(){window.scrollTo({top:0,left:0,behavior:"instant"})};
+top();window.addEventListener("load",top);window.addEventListener("pageshow",top);
+}catch(e){}})();`;
+
 export const viewport: Viewport = {
   themeColor: "#faf8f5",
   colorScheme: "light",
@@ -125,6 +132,13 @@ export default function RootLayout({
       className={`${playfair.variable} ${inter.variable} ${poppins.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-dvh font-sans">
+        <script
+          // Runs before first paint: always open at the top on refresh instead
+          // of the browser restoring the old scroll position or jumping to a
+          // leftover #section hash. `behavior: "instant"` overrides the
+          // smooth scrolling set on <html>.
+          dangerouslySetInnerHTML={{ __html: SCROLL_TO_TOP }}
+        />
         <script
           type="application/ld+json"
           // Static, developer-authored object — no user input reaches this.

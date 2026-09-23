@@ -1,42 +1,42 @@
 import type { IconName, Track } from "@/types";
 
 export interface ResumeEntry {
-  /** TODO: swap the placeholder periods for real dates. */
   period: string;
   role: string;
   org: string;
   points: string[];
 }
 
-/** Left column of the résumé panel. */
+/** Left column of the résumé panel. Mirrors `public/resume.pdf`. */
 export const experiences: ResumeEntry[] = [
   {
-    period: "2024 — Present",
-    role: "Freelance developer & analyst",
-    org: "Independent",
+    period: "Feb 2025 — Present",
+    role: "IT Trainer",
+    org: "Techcadd Computer Education · Phagwara",
     points: [
-      "Web apps & admin dashboards",
-      "REST API design & integration",
-      "Analytics engagements",
+      "Web development training for 40+ students",
+      "Curriculum, assignments & project mentoring",
+      "Built & maintain techcaddjalandhar.com and techcaddludhiana.com",
     ],
   },
   {
-    period: "2023 — Present",
-    role: "1-on-1 coding coach",
-    org: "Independent",
+    period: "Sep 2024 — Jan 2025",
+    role: "Software Developer Trainee",
+    org: "Numetry Technologies · Pune",
     points: [
-      "Hourly mentorship for students",
-      "MERN stack from fundamentals up",
+      "Full-stack MERN e-commerce application",
+      "Reusable, responsive React components",
+      "REST API integration for products, cart & CRUD",
     ],
   },
   {
-    period: "2023 — 2024",
-    role: "Full-stack development",
-    org: "Self-directed",
+    period: "Jan 2024 — Jun 2024",
+    role: "MERN Stack Developer Trainee",
+    org: "Omninos Solutions · Mohali",
     points: [
-      "Three production-style MERN apps",
-      "Auth, RBAC & role dashboards",
-      "Caching layers & job queues",
+      "Multiple full-stack MERN applications",
+      "RESTful APIs wired to dynamic React frontends",
+      "Responsive layouts & UI animations",
     ],
   },
 ];
@@ -44,16 +44,10 @@ export const experiences: ResumeEntry[] = [
 /** Middle column. */
 export const formations: ResumeEntry[] = [
   {
-    period: "Foundation",
+    period: "Jun 2020 — Jun 2024",
     role: "B.Tech Computer Science & Engineering",
-    org: "Guru Nanak Dev Engineering College",
-    points: ["Data structures & algorithms", "Databases & statistics"],
-  },
-  {
-    period: "Ongoing",
-    role: "Data analysis practice",
-    org: "Self-directed study",
-    points: ["SQL modelling & Python exploration", "BI dashboard design"],
+    org: "Guru Nanak Dev Engineering College · Ludhiana",
+    points: ["GPA 8.74 / 10.0"],
   },
 ];
 
@@ -75,12 +69,15 @@ export const aptitudes: string[] = [
   "Node.js",
   "Express",
   "MongoDB",
+  "MySQL",
   "JavaScript",
   "SQL",
   "Python",
+  "Java",
   "pandas",
+  "NumPy",
   "Power BI",
-  "Tableau",
   "Git",
+  "Postman",
   "Figma",
 ];

@@ -1,12 +1,11 @@
 import { Mail } from "lucide-react";
-import { navItems } from "@/data/navigation";
 import { profile } from "@/data/profile";
 import { GithubMark, LinkedinMark } from "@/components/ui/brand-icons";
 
 export function SiteFooter() {
   return (
     <footer className="relative border-t border-hairline bg-shell/60">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1fr_auto]">
         <div>
           <p className="font-display text-2xl text-ink">
             {profile.wordmark}
@@ -16,24 +15,6 @@ export function SiteFooter() {
             {profile.subheadline}
           </p>
         </div>
-
-        <nav aria-label="Footer">
-          <p className="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-ink-muted">
-            Sections
-          </p>
-          <ul className="mt-3 space-y-1">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <a
-                  href={item.href}
-                  className="inline-block py-1.5 text-sm text-ink-soft transition-colors hover:text-lilac-deep"
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
 
         <div>
           <p className="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-ink-muted">

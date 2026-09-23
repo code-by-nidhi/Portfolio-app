@@ -9,13 +9,15 @@ export const springSoft: Transition = {
   mass: 0.8,
 };
 
-/** Panel rising toward the viewer out of the page plane. */
+/**
+ * Panel rising into place. Deliberately 2D: a rotateX here, nested inside the
+ * `.scene` perspective, made text and card edges shimmer while scrolling.
+ */
 export const riseIn: Variants = {
-  hidden: { opacity: 0, y: 28, rotateX: -8, transformPerspective: 900 },
+  hidden: { opacity: 0, y: 28 },
   visible: {
     opacity: 1,
     y: 0,
-    rotateX: 0,
     transition: { duration: 0.7, ease: EASE_OUT_QUINT },
   },
 };

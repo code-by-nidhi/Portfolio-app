@@ -1,5 +1,6 @@
 import { About } from "@/components/sections/about";
 import { Contact } from "@/components/sections/contact";
+import { Contributions } from "@/components/sections/contributions";
 import { Hero } from "@/components/sections/hero";
 import { Journey } from "@/components/sections/journey";
 import { MarqueeStrip } from "@/components/sections/marquee-strip";
@@ -22,6 +23,7 @@ export default function HomePage() {
       <Services />
       <Why />
       <Work />
+      <Contributions />
       <Skills />
       <Journey />
       <Contact />
